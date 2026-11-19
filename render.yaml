@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: mini-convergence-engine-api
+    runtime: node
+    plan: free
+    rootDir: backend
+    buildCommand: pnpm install --frozen-lockfile
+    startCommand: pnpm start
+    healthCheckPath: /health
+    envVars:
+      # Set in the Render dashboard, never committed.
+      - key: OPENROUTER_API_KEY
+        sync: false
+      # Mandated by the assignment brief; more expensive models are forbidden.
+      - key: OPENROUTER_MODEL
+        value: anthropic/claude-sonnet-5.5
+      # The deployed Vercel origin, for CORS.
+      - key: FRONTEND_ORIGIN
+        value: https://mini-convergence-engine-cyan.vercel.app
