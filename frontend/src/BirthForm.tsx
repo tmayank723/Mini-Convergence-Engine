@@ -5,9 +5,8 @@ import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 import InputAdornment from '@mui/material/InputAdornment';
 import TextField from '@mui/material/TextField';
-import { MobileDatePicker } from '@mui/x-date-pickers/MobileDatePicker';
-import { MobileTimePicker } from '@mui/x-date-pickers/MobileTimePicker';
-import type { MobileTimePickerProps } from '@mui/x-date-pickers/MobileTimePicker';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { TimePicker, type TimePickerProps } from '@mui/x-date-pickers/TimePicker';
 import { renderMultiSectionDigitalClockTimeView } from '@mui/x-date-pickers/timeViewRenderers';
 import dayjs, { type Dayjs } from 'dayjs';
 import { useMemo, useState } from 'react';
@@ -17,9 +16,6 @@ import type { ReadingRequest } from './reading.models';
 
 /** Start of the verified Chinese calendar table, mirrored from the API. */
 const EARLIEST_YEAR = 1902;
-
-/** Only used to choose which page of years the calendar opens on. */
-const TYPICAL_AGE_YEARS = 30;
 
 const MAX_NAME_LENGTH = 120;
 
@@ -33,32 +29,18 @@ const SYSTEMS = [
 
 type Field = 'fullName' | 'dateOfBirth' | 'timeOfBirth';
 
-/**
- * Digital hour and minute columns for the time dialog, instead of the default
- * clock face. On a 24-hour clock the hours crowd into two rings and the
- * minutes have to be aimed at, and the exact minute matters here: it decides
- * the vara either side of 06:00, and the sign either side of a cusp.
- *
- * The cast is a gap in MUI's own types. The renderer is declared over the view
- * union that includes 'meridiem', which MobileTimePicker's does not, but with
- * ampm off there is no meridiem view to render - so it is a superset being
- * handed to a narrower slot.
- */
 const renderDigitalColumns = (
   props: Parameters<typeof renderMultiSectionDigitalClockTimeView>[0],
 ) =>
   renderMultiSectionDigitalClockTimeView({
     ...props,
-    // Every minute, not the default five. Most people round their birth time
-    // anyway, but the ones who know it to the minute are exactly the ones
-    // sitting near a boundary where it changes the answer.
     timeSteps: { hours: 1, minutes: 1 },
   });
 
 const DIGITAL_COLUMNS = {
   hours: renderDigitalColumns,
   minutes: renderDigitalColumns,
-} as unknown as NonNullable<MobileTimePickerProps['viewRenderers']>;
+} satisfies NonNullable<TimePickerProps['viewRenderers']>;
 
 interface Props {
   busy: boolean;
@@ -72,10 +54,6 @@ export function BirthForm({ busy, serverError, onSubmit, expanded = false }: Pro
   const [fullName, setFullName] = useState('');
   const [dateOfBirth, setDateOfBirth] = useState<Dayjs | null>(null);
   const [timeOfBirth, setTimeOfBirth] = useState<Dayjs | null>(null);
-  // The picker dialogs are driven from here rather than left to open
-  // themselves, so a click anywhere on the read-only field opens them. Left
-  // to MUI, a read-only field only responds to the small toggle button, and a
-  // field that ignores a click looks broken.
   const [dateOpen, setDateOpen] = useState(false);
   const [timeOpen, setTimeOpen] = useState(false);
   const [touched, setTouched] = useState<Record<Field, boolean>>({
@@ -98,14 +76,9 @@ export function BirthForm({ busy, serverError, onSubmit, expanded = false }: Pro
   const completedSteps =
     Number(fieldReady.fullName) + Number(fieldReady.dateOfBirth) + Number(fieldReady.timeOfBirth);
 
-  // Both depend only on today, so they must not be rebuilt every render - a
-  // new Dayjs each time would reopen the calendar on a different page.
+  // The date limits only depend on the day the form was opened.
   const maxDate = useMemo(() => dayjs(), []);
   const minDate = useMemo(() => dayjs(`${EARLIEST_YEAR}-01-01`), []);
-  const referenceDate = useMemo(
-    () => dayjs().subtract(TYPICAL_AGE_YEARS, 'year').startOf('year'),
-    [],
-  );
 
   const errorFor = (field: Field) => (touched[field] ? (problems[field] ?? null) : null);
   const markTouched = (field: Field) => setTouched((was) => ({ ...was, [field]: true }));
@@ -187,39 +160,34 @@ export function BirthForm({ busy, serverError, onSubmit, expanded = false }: Pro
           <span className={styles.fieldStep} aria-hidden>
             02
           </span>
-          {/*
-            The picker is not typeable and opens a dialog, which is exactly what
-            is wanted for a birth date: 05/06/2002 can mean two different dates.
-          */}
-          <div className={`${styles.pickerWrap} ${styles.pickers}`}>
-            <MobileDatePicker
-              label="Date of birth"
-              value={dateOfBirth}
-              format="DD/MM/YYYY"
-              openTo="year"
-              views={['year', 'month', 'day']}
-              minDate={minDate}
-              maxDate={maxDate}
-              referenceDate={referenceDate}
-              onChange={setDateOfBirth}
-              open={dateOpen}
-              onOpen={() => setDateOpen(true)}
-              onClose={() => {
-                setDateOpen(false);
-                markTouched('dateOfBirth');
-              }}
-              slotProps={{
-                field: { readOnly: true },
-                textField: {
-                  required: true,
-                  onClick: () => setDateOpen(true),
-                  error: Boolean(errorFor('dateOfBirth')),
-                  helperText: errorFor('dateOfBirth') ?? 'Choose a date from the calendar',
-                  className: styles.pickerField,
-                },
-              }}
-            />
-          </div>
+          <DatePicker
+            label="Date of birth"
+            value={dateOfBirth}
+            format="DD/MM/YYYY"
+            openTo="year"
+            views={['year', 'month', 'day']}
+            minDate={minDate}
+            maxDate={maxDate}
+            open={dateOpen}
+            onOpen={() => setDateOpen(true)}
+            onClose={() => {
+              setDateOpen(false);
+              markTouched('dateOfBirth');
+            }}
+            onChange={setDateOfBirth}
+            slotProps={{
+              field: { readOnly: true },
+              textField: {
+                required: true,
+                onClick: () => setDateOpen(true),
+                error: Boolean(errorFor('dateOfBirth')),
+                helperText: errorFor('dateOfBirth') ?? 'Select your birth date',
+                className: styles.pickerField,
+              },
+              desktopPaper: { className: styles.pickerPaper },
+              mobilePaper: { className: styles.pickerPaper },
+            }}
+          />
         </div>
 
         <div
@@ -229,61 +197,32 @@ export function BirthForm({ busy, serverError, onSubmit, expanded = false }: Pro
           <span className={styles.fieldStep} aria-hidden>
             03
           </span>
-          <div className={`${styles.pickerWrap} ${styles.pickers}`}>
-            <MobileTimePicker
-              label="Time of birth"
-              value={timeOfBirth}
-              format="HH:mm"
-              ampm={false}
-              // Digital columns keep the exact minute easy to choose. It can
-              // affect the vara at 06:00 or a sun sign near a cusp.
-              viewRenderers={DIGITAL_COLUMNS}
-              onChange={setTimeOfBirth}
-              open={timeOpen}
-              onOpen={() => setTimeOpen(true)}
-              onClose={() => {
-                setTimeOpen(false);
-                markTouched('timeOfBirth');
-              }}
-              slotProps={{
-                field: { readOnly: true },
-                textField: {
-                  required: true,
-                  onClick: () => setTimeOpen(true),
-                  error: Boolean(errorFor('timeOfBirth')),
-                  helperText: errorFor('timeOfBirth') ?? 'Enter local time; interpreted as IST',
-                  className: styles.pickerField,
-                },
-                // Styles hang off the paper, because the dialog renders in a portal
-                // outside the form. The sx on layout wins over MUI's default grid,
-                // which reserves a shortcut column this picker never uses.
-                layout: {
-                  sx: {
-                    width: '100%',
-                    gridTemplateColumns: '1fr',
-                    '& .MuiPickersLayout-toolbar': { gridColumn: '1', width: '100%' },
-                    '& .MuiPickersLayout-contentWrapper': {
-                      gridColumn: '1',
-                      width: '100%',
-                      alignItems: 'stretch',
-                    },
-                    '& .MuiPickersLayout-actionBar': { gridColumn: '1', width: '100%' },
-                    '& .MuiMultiSectionDigitalClock-root': {
-                      width: '100%',
-                      justifyContent: 'stretch',
-                      borderBottom: 0,
-                    },
-                    '& .MuiMultiSectionDigitalClockSection-root': {
-                      flex: '1 1 50%',
-                      width: 'auto',
-                      maxWidth: 'none',
-                    },
-                  },
-                },
-                mobilePaper: { className: styles.timeDialogPaper },
-              }}
-            />
-          </div>
+          <TimePicker
+            label="Time of birth"
+            value={timeOfBirth}
+            ampm={false}
+            views={['hours', 'minutes']}
+            viewRenderers={DIGITAL_COLUMNS}
+            open={timeOpen}
+            onOpen={() => setTimeOpen(true)}
+            onClose={() => {
+              setTimeOpen(false);
+              markTouched('timeOfBirth');
+            }}
+            onChange={setTimeOfBirth}
+            slotProps={{
+              field: { readOnly: true },
+              textField: {
+                required: true,
+                onClick: () => setTimeOpen(true),
+                error: Boolean(errorFor('timeOfBirth')),
+                helperText: errorFor('timeOfBirth') ?? 'Enter local time; interpreted as IST',
+                className: styles.pickerField,
+              },
+              desktopPaper: { className: styles.pickerPaper },
+              mobilePaper: { className: styles.pickerPaper },
+            }}
+          />
         </div>
       </div>
 
@@ -355,7 +294,7 @@ function validate(
   }
 
   if (!dateOfBirth) {
-    problems.dateOfBirth = 'Choose a birth date from the calendar.';
+    problems.dateOfBirth = 'Choose a birth date.';
   } else if (!dateOfBirth.isValid()) {
     problems.dateOfBirth = 'That date could not be read. Choose it again.';
   } else if (dateOfBirth.isAfter(dayjs(), 'day')) {

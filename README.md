@@ -6,7 +6,7 @@ Built for the Decode Stars final-round assignment.
 
 | Layer | Choice |
 | --- | --- |
-| Live site | [https://mini-convergence-engine-cyan.vercel.app](https://mini-convergence-engine-cyan.vercel.app/) |
+| Live site | [https://mini-convergence-engine-gold.vercel.app](https://mini-convergence-engine-gold.vercel.app/) |
 | API | [https://mini-convergence-engine.onrender.com](https://mini-convergence-engine.onrender.com/health) |
 | Frontend | React 19, Vite, MUI |
 | Backend | Node.js 20.19+ and Express |
@@ -18,7 +18,7 @@ The browser only talks to the Vercel origin. `/api/*` is rewritten to Render (se
 
 ## 1. Live URL and how to run the project locally
 
-**Live URL:** [https://mini-convergence-engine-cyan.vercel.app](https://mini-convergence-engine-cyan.vercel.app/)
+**Live URL:** [https://mini-convergence-engine-gold.vercel.app](https://mini-convergence-engine-gold.vercel.app/)
 
 Health check for the API: [https://mini-convergence-engine.onrender.com/health](https://mini-convergence-engine.onrender.com/health) — expect `{"status":"ok"}`. The first request after idle can take 30–60 seconds on Render’s free tier.
 
@@ -35,7 +35,7 @@ Copy-Item .env.example .env
 pnpm run dev
 ```
 
-Put your OpenRouter key in `backend/.env` as the value of `OPENROUTER_API_KEY`, then restart the backend. `.env.example` is only a blank template; never put a real key there or commit it. The server loads `backend/.env` whether started from the repository root or the backend folder. If a key was placed in a tracked file or shared, revoke it and create a replacement. For Render, add `OPENROUTER_API_KEY` under the service’s environment settings and set `FRONTEND_ORIGIN` to `https://mini-convergence-engine-cyan.vercel.app` (without a trailing slash), then redeploy.
+Put your OpenRouter key in `backend/.env` as the value of `OPENROUTER_API_KEY`, then restart the backend. `.env.example` is only a blank template; never put a real key there or commit it. The server loads `backend/.env` whether started from the repository root or the backend folder. If a key was placed in a tracked file or shared, revoke it and create a replacement. For Render, add `OPENROUTER_API_KEY` under the service’s environment settings and set `FRONTEND_ORIGIN` to `https://mini-convergence-engine-gold.vercel.app` (without a trailing slash), then redeploy.
 
 Without a key, calculations still work and the summary uses a template. The chat now explains whether the key is missing or OpenRouter rejected the request. Provider failures are logged with only a status code and error category, never the key.
 
@@ -161,7 +161,7 @@ No astronomy or numerology library is a dependency. The Sun method is ~0.01° (a
 
 ## 5. Sample outputs for five test inputs
 
-All five were computed by the same engine the live site uses (`buildReading` in `backend/src/engine.js`). Reproduce them at [the live URL](https://mini-convergence-engine-cyan.vercel.app/) — first load may wait for Render to wake.
+All five were computed by the same engine the live site uses (`buildReading` in `backend/src/engine.js`). Reproduce them at [the live URL](https://mini-convergence-engine-gold.vercel.app/) — first load may wait for Render to wake.
 
 Agreement means a trait score ≥ 7. Confidence is `1 − 1/2^N`.
 
