@@ -31,9 +31,9 @@ async function post(path, body) {
 }
 
 const valid = {
-  full_name: 'Ayush Mishra',
-  date_of_birth: '1995-08-15',
-  time_of_birth: '10:30',
+  full_name: 'Mayank Tiwari',
+  date_of_birth: '1999-12-14',
+  time_of_birth: '01:00',
 };
 
 test('health endpoint returns the liveness response', async () => {
@@ -50,12 +50,12 @@ test('reading endpoint preserves all five known results and response shape', asy
     'sun_sign', 'chinese_zodiac', 'life_path', 'name_number', 'vara',
   ]);
   assert.deepEqual(body.methods.map(({ result }) => result), [
-    'Leo', 'Pig', '2', '5', 'Mangalavara (Mars)',
+    'Sagittarius', 'Rabbit', '9', '2', 'Somavara (Moon)',
   ]);
-  assert.equal(body.time_of_birth, '10:30:00');
+  assert.equal(body.time_of_birth, '01:00:00');
   assert.equal(body.traits.length, 6);
   assert.equal(body.summary_source, 'template');
-  assert.ok(body.summary.includes('Ayush Mishra'));
+  assert.ok(body.summary.includes('Mayank Tiwari'));
   assert.ok(body.assumptions.some((note) => note.includes('IST')));
   for (const method of body.methods) {
     assert.equal(Object.keys(method.scores).length, 6);
@@ -107,14 +107,78 @@ test('birth near a sign boundary is calculated from solar longitude and called o
 });
 
 test('master number and accented name are preserved', async () => {
-  const response = await post('/api/reading', {
+  const accented = await post('/api/reading', {
     ...valid,
     full_name: 'José Álvarez',
     date_of_birth: '1950-01-04',
   });
-  const body = await response.json();
-  assert.equal(body.methods[2].result, '11');
-  assert.equal(response.status, 200);
+  const plain = await post('/api/reading', {
+    ...valid,
+    full_name: 'Jose Alvarez',
+    date_of_birth: '1950-01-04',
+  });
+  const accentedBody = await accented.json();
+  const plainBody = await plain.json();
+  assert.equal(accentedBody.methods[2].result, '11');
+  assert.equal(accented.status, 200);
+  assert.equal(
+    accentedBody.methods.find(({ id }) => id === 'name_number').result,
+    plainBody.methods.find(({ id }) => id === 'name_number').result,
+  );
+});
+
+test('Devanagari names are transliterated and scored', async () => {
+  const hindi = await post('/api/reading', { ...valid, full_name: 'राम शर्मा' });
+  const roman = await post('/api/reading', { ...valid, full_name: 'Ram Sharma' });
+  const hindiBody = await hindi.json();
+  const romanBody = await roman.json();
+  assert.equal(hindi.status, 200);
+  assert.equal(hindiBody.full_name, 'राम शर्मा');
+  assert.equal(
+    hindiBody.methods.find(({ id }) => id === 'name_number').result,
+    romanBody.methods.find(({ id }) => id === 'name_number').result,
+  );
+  assert.ok(hindiBody.assumptions.some((note) => note.includes('transliterated as "ram sharma"')));
+});
+
+test('English and Hindi titles are excluded from Chaldean scoring', async () => {
+  const englishTitle = await post('/api/reading', { ...valid, full_name: 'Dr. José Álvarez' });
+  const hindiTitle = await post('/api/reading', { ...valid, full_name: 'डॉ. राम शर्मा' });
+  const englishName = await post('/api/reading', { ...valid, full_name: 'José Álvarez' });
+  const hindiName = await post('/api/reading', { ...valid, full_name: 'राम शर्मा' });
+  const [englishTitleBody, hindiTitleBody, englishNameBody, hindiNameBody] = await Promise.all([
+    englishTitle.json(),
+    hindiTitle.json(),
+    englishName.json(),
+    hindiName.json(),
+  ]);
+  const nameNumber = (body) => body.methods.find(({ id }) => id === 'name_number').result;
+
+  assert.equal(englishTitle.status, 200);
+  assert.equal(hindiTitle.status, 200);
+  assert.equal(nameNumber(englishTitleBody), nameNumber(englishNameBody));
+  assert.equal(nameNumber(hindiTitleBody), nameNumber(hindiNameBody));
+  assert.ok(englishTitleBody.assumptions.some((note) => note.includes('title "Dr." was excluded')));
+  assert.ok(hindiTitleBody.assumptions.some((note) => note.includes('title "डॉ." was excluded')));
+});
+
+test('punctuation is ignored in scoring and reported, but a title alone is rejected', async () => {
+  const punctuated = await post('/api/reading', { ...valid, full_name: 'O’Neil-Smith' });
+  const plain = await post('/api/reading', { ...valid, full_name: 'ONeilSmith' });
+  const titleOnly = await post('/api/reading', { ...valid, full_name: 'Dr.' });
+  const punctuatedBody = await punctuated.json();
+  const plainBody = await plain.json();
+  const titleOnlyBody = await titleOnly.json();
+
+  assert.equal(punctuated.status, 200);
+  assert.equal(
+    punctuatedBody.methods.find(({ id }) => id === 'name_number').result,
+    plainBody.methods.find(({ id }) => id === 'name_number').result,
+  );
+  assert.ok(punctuatedBody.assumptions.some((note) => note.includes('’') && note.includes('-')));
+  assert.equal(titleOnly.status, 422);
+  assert.equal(titleOnlyBody.field, 'full_name');
+  assert.match(titleOnlyBody.message, /after any title is removed/);
 });
 
 test('invalid input returns a readable field-specific 422 response', async () => {

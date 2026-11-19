@@ -6,10 +6,8 @@ Built for the Decode Stars final-round assignment.
 
 | Layer | Choice |
 | --- | --- |
-| Live site | [https://mini-convergence-engine-gold.vercel.app](https://mini-convergence-engine-gold.vercel.app/) |
-| API | [https://mini-convergence-engine.onrender.com](https://mini-convergence-engine.onrender.com/health) |
 | Frontend | React 19, Vite, MUI |
-| Backend | Node.js 20.19+ and Express |
+| Backend | Node.js and Express |
 | Repo | One monorepo: `frontend/` + `backend/` |
 
 The browser only talks to the Vercel origin. `/api/*` is rewritten to Render (see `frontend/vercel.json`). The five calculations, trait scores and `1 − 1/2^N` arithmetic are deterministic JavaScript. The LLM is used only to phrase numbers it is handed (summary + chat).
@@ -75,13 +73,11 @@ Worked example, **4 January 1950** (one of the divergent dates):
 - Component-first: month 1, day 4, year 15 → 6; sum 11 → **Life Path 11**
 - Flat-sum: 1+9+5+0+0+1+0+4 = 20 → 2
 
-**Name number uses the full name as typed, reduced to one digit.** Cheiro reads the two-digit compound and prefers “the most used Christian and Surname”. The brief gives one name field and no way to know a preferred form, so we use the whole string and reduce. Characters with no Chaldean value (digits, punctuation, spaces) are ignored and named in the assumptions list.
+**Name number uses the name after a supported leading title is removed, reduced to one digit.** Cheiro reads the two-digit compound and prefers “the most used Christian and Surname”. The brief gives one name field and no way to know a preferred form, so we use the remaining name and reduce. Devanagari names are transliterated before scoring; the exact transliteration and any removed title are listed in the assumptions. Other characters with no Chaldean value (such as punctuation and digits) are ignored and reported.
 
 **Time of birth only moves Vara and, near a cusp, the sun sign.** Life Path, name number and the Chinese animal ignore the clock.
 
 **Supported dates start at 1902.** That is the start of the verified Chinese New Year table we ship. Future dates are rejected.
-
-**Node.js 20.19 or newer.** The API is a dependency-light Express service; date and astronomy calculations use the JavaScript runtime and no calculation libraries.
 
 ---
 
@@ -91,7 +87,10 @@ Worked example, **4 January 1950** (one of the divergent dates):
 | --- | --- |
 | Empty name / no letters | 422 with a plain sentence, not a stack trace |
 | Name longer than 120 characters | Rejected with a readable message |
-| Punctuation, digits, accents | Accents are accepted; characters with no Chaldean value are skipped and listed |
+| Latin accents, punctuation, digits | Accents are normalized; punctuation and digits are skipped and listed |
+| Hindi names in Devanagari | Transliteration is used for Chaldean scoring, and the exact result is shown in the assumptions |
+| Leading title such as `Dr.` or `डॉ.` | Common English and Hindi titles are excluded from the name number and reported |
+| Name contains only a title | Rejected because no name remains to score |
 | Date in the future | Rejected: “A date of birth cannot be in the future.” |
 | Date before 1902 | Rejected with the calendar-table reason |
 | Malformed date or time | 422 `{message, field}` — the API returns a short, field-specific message |
@@ -161,30 +160,30 @@ No astronomy or numerology library is a dependency. The Sun method is ~0.01° (a
 
 ## 5. Sample outputs for five test inputs
 
-All five were computed by the same engine the live site uses (`buildReading` in `backend/src/engine.js`). Reproduce them at [the live URL](https://mini-convergence-engine-gold.vercel.app/) — first load may wait for Render to wake.
+All five were computed by the same engine the live site uses (`buildReading` in `backend/src/engine.js`). The first live request may wait for Render to wake; the site URL is listed in section 1.
 
 Agreement means a trait score ≥ 7. Confidence is `1 − 1/2^N`.
 
-### 1. Ayush Mishra — 15 Aug 1995, 10:30
+### 1. Mayank Tiwari — 14 Dec 1999, 01:00 AM
 
-A mid-range “ordinary” adult birth after sunrise, used as the API fixture.
+The API fixture; the 01:00 birth time falls before the assumed 06:00 sunrise.
 
 | Method | Result |
 | --- | --- |
-| Sun sign | Leo |
-| Chinese zodiac | Pig |
-| Life Path | 2 |
-| Name number | 5 |
-| Vara | Mangalavara (Mars) |
+| Sun sign | Sagittarius |
+| Chinese zodiac | Rabbit |
+| Life Path | 9 |
+| Name number | 2 |
+| Vara | Somavara (Moon) |
 
 | Trait | N | Confidence |
 | --- | --- | --- |
-| Leadership | 2 | 75% |
-| Creativity | 2 | 75% |
-| Emotional depth | 2 | 75% |
-| Communication | 2 | 75% |
-| Discipline | 1 | 50% |
-| Risk appetite | 3 | **87.5%** |
+| Leadership | 1 | 50% |
+| Creativity | 4 | **93.75%** |
+| Emotional depth | 4 | **93.75%** |
+| Communication | 3 | 87.5% |
+| Discipline | 0 | 0% |
+| Risk appetite | 1 | 50% |
 
 ### 2. Lloyd George — 4 Jan 1950, 07:15
 
@@ -312,10 +311,10 @@ I would keep `1 − 1/2^N` on screen because the brief requires it and the criti
 - **Meeus low-precision Sun** is fine next to that timezone guess; with a location I would consider a real ephemeris.
 - **Trait rubric is additive and crude.** Tradition is not a vector sum. More overrides, or a published per-sign table with citations per cell, would be more honest than seven rules plus three exceptions.
 - **Chinese table is hardcoded** through the HKO range we verified. Extending it or documenting the 2057/2089 caveats in-product would be tidier.
+- **Hindi transliteration is a consistent scoring aid, not a pronunciation authority.** Names can be romanized in several valid ways; the exact form used is shown with the result. Other non-Latin scripts are not transliterated yet.
 - **Render free tier sleeps.** A keep-alive ping (cron-job.org or GitHub Actions hitting `/health` every ~12 minutes) should be added so a reviewer does not wait a minute.
 - **One `FRONTEND_ORIGIN`.** Preview deployments on other Vercel URLs are not in the CORS list.
 - **Chat context is one reading JSON**, not a persistent user profile.
-- **README / docs duplication.** `docs/decisions.md` is the working log; this file is the submission surface.
 
 ---
 

@@ -23,6 +23,7 @@ const METHOD_ORDER = Object.keys(METHOD_LABELS);
 const EARLIEST_YEAR = 1902;
 const IST_OFFSET_MINUTES = 330;
 const MAX_NAME_LENGTH = 120;
+const NAME_TITLE_PREFIX = /^(?:(?:doctor|professor|prof|dr|mr|mrs|ms|miss|shri|shrimati|smt|sushri|डॉ|श्री|श्रीमती|सुश्री)\.?(?=[\s,]|$)[\s,]*)+/iu;
 const SIGNS = [
   'Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo',
   'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces',
@@ -31,6 +32,26 @@ const CHALDEAN_VALUES = {
   A: 1, B: 2, C: 3, D: 4, E: 5, F: 8, G: 3, H: 5, I: 1, J: 1,
   K: 2, L: 3, M: 4, N: 5, O: 7, P: 8, Q: 1, R: 2, S: 3, T: 4,
   U: 6, V: 6, W: 6, X: 5, Y: 1, Z: 7,
+};
+const DEVANAGARI_CONSONANTS = {
+  क: 'k', ख: 'kh', ग: 'g', घ: 'gh', ङ: 'ng',
+  च: 'ch', छ: 'chh', ज: 'j', झ: 'jh', ञ: 'ny',
+  ट: 't', ठ: 'th', ड: 'd', ढ: 'dh', ण: 'n',
+  त: 't', थ: 'th', द: 'd', ध: 'dh', न: 'n',
+  प: 'p', फ: 'ph', ब: 'b', भ: 'bh', म: 'm',
+  य: 'y', र: 'r', ल: 'l', व: 'v', श: 'sh', ष: 'sh', स: 's', ह: 'h',
+  ळ: 'l',
+};
+const DEVANAGARI_NUKTA_CONSONANTS = {
+  क: 'q', ख: 'kh', ग: 'gh', ज: 'z', ड: 'r', ढ: 'rh', फ: 'f', य: 'y',
+};
+const DEVANAGARI_VOWELS = {
+  अ: 'a', आ: 'a', इ: 'i', ई: 'i', उ: 'u', ऊ: 'u',
+  ऋ: 'ri', ॠ: 'ri', ऌ: 'li', ॡ: 'li', ए: 'e', ऐ: 'ai', ओ: 'o', औ: 'au',
+};
+const DEVANAGARI_MATRAS = {
+  'ा': 'a', 'ि': 'i', 'ी': 'i', 'ु': 'u', 'ू': 'u', 'ृ': 'ri', 'ॄ': 'ri',
+  'ॢ': 'li', 'ॣ': 'li', 'े': 'e', 'ै': 'ai', 'ो': 'o', 'ौ': 'au',
 };
 
 const signElements = {
@@ -177,8 +198,57 @@ function parseBirthTime(value) {
   return `${hour}:${minute}:${seconds}${fractionalSeconds}`;
 }
 
+function transliterateDevanagari(text) {
+  const characters = [...text.normalize('NFD')];
+  let transliteration = '';
+
+  for (let index = 0; index < characters.length; index += 1) {
+    const character = characters[index];
+    if (Object.hasOwn(DEVANAGARI_CONSONANTS, character)) {
+      let consonant = DEVANAGARI_CONSONANTS[character];
+      if (characters[index + 1] === '़') {
+        consonant = DEVANAGARI_NUKTA_CONSONANTS[character] ?? consonant;
+        index += 1;
+      }
+
+      const next = characters[index + 1];
+      if (next === '्') {
+        transliteration += consonant;
+        index += 1;
+        if (characters[index + 1] === '‍' || characters[index + 1] === '‌') index += 1;
+      } else if (Object.hasOwn(DEVANAGARI_MATRAS, next)) {
+        transliteration += consonant + DEVANAGARI_MATRAS[next];
+        index += 1;
+      } else {
+        const endsWord = characters
+          .slice(index + 1)
+          .every((remaining) => /[\p{P}\p{S}]/u.test(remaining));
+        // Hindi often drops the inherent final "a"; omitting it keeps common
+        // names such as राम and शर्मा close to their familiar Roman spellings.
+        transliteration += consonant + (endsWord ? '' : 'a');
+      }
+    } else if (Object.hasOwn(DEVANAGARI_VOWELS, character)) {
+      transliteration += DEVANAGARI_VOWELS[character];
+    } else if (Object.hasOwn(DEVANAGARI_MATRAS, character)) {
+      transliteration += DEVANAGARI_MATRAS[character];
+    } else if (character === 'ं' || character === 'ँ') {
+      transliteration += 'n';
+    } else if (character === 'ः') {
+      transliteration += 'h';
+    } else if (character !== '्' && character !== '़' && character !== '‍' && character !== '‌') {
+      transliteration += character;
+    }
+  }
+
+  return transliteration;
+}
+
 function normaliseName(text) {
-  return text.normalize('NFKD').replace(/\p{M}/gu, '').toUpperCase().replace(/[^A-Z]/g, '');
+  return transliterateDevanagari(text)
+    .normalize('NFKD')
+    .replace(/\p{M}/gu, '')
+    .toUpperCase()
+    .replace(/[^A-Z]/g, '');
 }
 
 function sumDigits(value) {
@@ -191,21 +261,33 @@ function reduceToDigit(value) {
   return value;
 }
 
-function nameNumber(fullName) {
+function nameNumber(fullName, removedTitle) {
   const ignoredCharacters = [...new Set([...fullName].filter((character) => (
-    !/\s/u.test(character) && !normaliseName(character)
+    !/\s/u.test(character)
+    && !/\p{M}/u.test(character)
+    && !/\p{Cf}/u.test(character)
+    && !normaliseName(character)
   )))].sort();
   const parts = fullName.trim().split(/\s+/).map(normaliseName).filter(Boolean).map((text) => {
     const total = [...text].reduce((sum, letter) => sum + CHALDEAN_VALUES[letter], 0);
     return { text, total, reduced: reduceToDigit(total) };
   });
-  if (!parts.length) throw new InputError('A name needs at least one letter, so we can score it.', 'full_name');
+  if (!parts.length) {
+    throw new InputError('A name needs at least one supported letter after any title is removed.', 'full_name');
+  }
   const compound = parts.reduce((sum, part) => sum + part.reduced, 0);
+  const transliteratedName = fullName
+    .split(/\s+/)
+    .map(transliterateDevanagari)
+    .join(' ');
   return {
     value: reduceToDigit(compound),
     compound,
     letterTotal: parts.reduce((sum, part) => sum + part.total, 0),
     ignoredCharacters,
+    removedTitle,
+    transliterated: /\p{Script=Devanagari}/u.test(fullName),
+    transliteratedName,
   };
 }
 
@@ -364,6 +446,12 @@ function assumptions(date, sun, zodiac, name, day) {
   if (zodiac.before) {
     notes.push(`This birthday comes before Chinese New Year (${zodiac.boundary}), so it still belongs to the previous lunar year's animal.`);
   }
+  if (name.removedTitle) {
+    notes.push(`The leading title "${name.removedTitle}" was excluded from the Chaldean name number.`);
+  }
+  if (name.transliterated) {
+    notes.push(`The Devanagari name was transliterated as "${name.transliteratedName}" for the Chaldean calculation.`);
+  }
   if (name.ignoredCharacters.length) {
     const characters = name.ignoredCharacters.map((character) => `'${character.replaceAll("'", "\\'")}'`).join(', ');
     notes.push(`${characters} do not have a letter value in the Chaldean table and were left out of the name calculation.`);
@@ -380,15 +468,18 @@ export function buildReading(request) {
   if ([...fullName].length > MAX_NAME_LENGTH) {
     throw new InputError(`That name is longer than ${MAX_NAME_LENGTH} characters.`, 'full_name');
   }
-  if (![...fullName].some((character) => /\p{L}/u.test(character))) {
-    throw new InputError('A name needs at least one letter, so we can score it.', 'full_name');
+  const titleMatch = fullName.match(NAME_TITLE_PREFIX);
+  const nameForCalculation = fullName.replace(NAME_TITLE_PREFIX, '').trim();
+  if (![...nameForCalculation].some((character) => /\p{L}/u.test(character))) {
+    throw new InputError('A name needs at least one letter after any title is removed.', 'full_name');
   }
   const date = parseBirthDate(request.date_of_birth);
   const time = parseBirthTime(request.time_of_birth);
   const sun = sunSign(date, time);
   const zodiac = chineseZodiac(date);
   const path = lifePath(date);
-  const name = nameNumber(fullName);
+  const removedTitle = titleMatch?.[0].replace(/[,\s]+$/gu, '').trim() ?? null;
+  const name = nameNumber(nameForCalculation, removedTitle);
   const day = vara(date, time);
 
   const scored = {
