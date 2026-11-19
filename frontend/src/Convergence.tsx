@@ -28,7 +28,6 @@ export function Convergence({ methods, traits }: Props) {
       agreeing: [...trait.agreeing]
         .sort((a, b) => order.indexOf(a) - order.indexOf(b))
         .map((id) => labels.get(id) ?? id),
-      pips: Array.from({ length: METHOD_COUNT }, (_, i) => i < trait.n),
     }));
   }, [methods, traits]);
 
@@ -73,45 +72,31 @@ export function Convergence({ methods, traits }: Props) {
             key={row.trait}
             style={{ '--delay': `${i * 70}ms` } as React.CSSProperties}
           >
-            <div className={styles.label}>
-              <span className={styles.trait}>{row.trait}</span>
-              <span
-                className={styles.pips}
-                aria-label={`${row.n} of ${METHOD_COUNT} methods agree`}
-              >
-                {row.pips.map((filled, pip) => (
-                  <span
-                    key={pip}
-                    className={`${styles.pip} ${filled ? styles.on : ''}`}
-                  />
-                ))}
-              </span>
+            <div className={styles.rowContent}>
+              <div className={styles.label}>
+                <span className={styles.trait}>{row.trait}</span>
+                <span className={styles.n}>
+                  {row.n} of {METHOD_COUNT} methods agree
+                </span>
+              </div>
+
+              <p className={styles.who}>
+                {row.agreeing.length > 0
+                  ? `At ${AGREEMENT_THRESHOLD}+: ${row.agreeing.join(', ')}`
+                  : `No score reached ${AGREEMENT_THRESHOLD}`}
+              </p>
             </div>
 
-            <div className={styles.meter}>
-              <span
-                className={`${styles.meterFill} ${row.n === 0 ? styles.none : ''}`}
-                style={
-                  {
-                    '--fill': `${row.percent}%`,
-                    '--delay': `${i * 70 + 120}ms`,
-                  } as React.CSSProperties
-                }
-              />
-            </div>
-
-            <p className={styles.figure}>
-              <span className={styles.percent}>
+            <div
+              className={styles.chart}
+              role="img"
+              aria-label={`${row.percent}% agreement confidence`}
+              style={{ '--progress': `${row.percent}%`, '--delay': `${i * 70 + 120}ms` } as React.CSSProperties}
+            >
+              <span className={styles.chartValue}>
                 <CountUp value={row.percent} decimals={1} suffix="%" delayMs={i * 70 + 120} />
               </span>
-              <span className={styles.n}>N = {row.n}</span>
-            </p>
-
-            <p className={styles.who}>
-              {row.agreeing.length > 0
-                ? `At 7+: ${row.agreeing.join(', ')}`
-                : `No score reached ${AGREEMENT_THRESHOLD}`}
-            </p>
+            </div>
           </li>
         ))}
       </ul>

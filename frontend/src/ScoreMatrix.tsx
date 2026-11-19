@@ -8,16 +8,12 @@ import {
   type TraitRow,
 } from './reading.models';
 
-/** Where to draw the threshold marker inside each bar. */
-const THRESHOLD_PERCENT = (AGREEMENT_THRESHOLD / MAX_SCORE) * 100;
-
 interface Props {
   methods: MethodResult[];
   traits: TraitRow[];
 }
 
 export function ScoreMatrix({ methods, traits }: Props) {
-  // Resolved up front so the markup stays declarative.
   const rows = useMemo(
     () =>
       traits.map((trait) => ({
@@ -26,6 +22,7 @@ export function ScoreMatrix({ methods, traits }: Props) {
           const score = trait.scores[method.id] ?? 0;
           return {
             method: method.id,
+            label: method.label,
             score,
             agrees: score >= AGREEMENT_THRESHOLD,
             fill: (score / MAX_SCORE) * 100,
@@ -37,50 +34,50 @@ export function ScoreMatrix({ methods, traits }: Props) {
 
   return (
     <div className={styles.wrap}>
-      <table className={styles.matrix}>
-        <caption>
-          All method scores by trait. Highlighted cells meet the {AGREEMENT_THRESHOLD}-point
-          agreement mark.
-        </caption>
+      <p className={styles.caption}>
+        Scores are grouped by trait. Each score is out of {MAX_SCORE}; highlighted scores meet the{' '}
+        {AGREEMENT_THRESHOLD}-point agreement mark.
+      </p>
 
-        <thead>
-          <tr>
-            <th scope="col" className={styles.corner}>
-              Trait
-            </th>
-            {methods.map((method) => (
-              <th scope="col" key={method.id}>
-                {method.label}
-              </th>
-            ))}
-          </tr>
-        </thead>
+      <div className={styles.traits}>
+        {rows.map((row, rowIndex) => (
+          <section
+            className={styles.trait}
+            key={row.trait}
+            aria-labelledby={`score-trait-${rowIndex}`}
+            style={{ '--delay': `${rowIndex * 50}ms` } as React.CSSProperties}
+          >
+            <h4 className={styles.traitTitle} id={`score-trait-${rowIndex}`}>
+              {row.trait}
+            </h4>
 
-        <tbody>
-          {rows.map((row, r) => (
-            <tr key={row.trait}>
-              <th scope="row">{row.trait}</th>
-
-              {row.cells.map((cell, c) => (
-                <td
+            <ul className={styles.scores}>
+              {row.cells.map((cell, cellIndex) => (
+                <li
+                  className={`${styles.scoreRow} ${cell.agrees ? styles.agrees : ''}`}
                   key={cell.method}
-                  className={cell.agrees ? styles.agrees : undefined}
-                  style={{ '--delay': `${r * 60 + c * 30}ms` } as React.CSSProperties}
+                  style={{ '--delay': `${rowIndex * 50 + cellIndex * 25}ms` } as React.CSSProperties}
                 >
-                  <span className={styles.score}>{cell.score}</span>
-                  <span className={styles.bar} aria-hidden>
+                  <span className={styles.method}>{cell.label}</span>
+                  <span className={styles.track} aria-hidden="true">
                     <span
                       className={styles.fill}
                       style={{ '--fill': `${cell.fill}%` } as React.CSSProperties}
                     />
-                    <span className={styles.mark} style={{ left: `${THRESHOLD_PERCENT}%` }} />
                   </span>
-                </td>
+                  <span
+                    className={styles.score}
+                    aria-label={`${cell.score} out of ${MAX_SCORE}${cell.agrees ? ', meets agreement mark' : ''}`}
+                  >
+                    {cell.score}
+                    <span className={styles.outOf}>/{MAX_SCORE}</span>
+                  </span>
+                </li>
               ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
+            </ul>
+          </section>
+        ))}
+      </div>
     </div>
   );
 }

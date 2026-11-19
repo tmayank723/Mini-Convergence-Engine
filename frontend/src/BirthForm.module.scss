@@ -175,11 +175,102 @@
 
 .pickerPaper {
   overflow: hidden;
-  border: 1px solid var(--outline-variant) !important;
-  border-radius: 1.1rem !important;
-  background: var(--surface-container) !important;
+  border: 1px solid color-mix(in srgb, var(--primary) 28%, var(--outline-variant)) !important;
+  border-radius: 1.35rem !important;
+  background:
+    radial-gradient(
+      ellipse at top right,
+      color-mix(in srgb, var(--tertiary) 14%, transparent),
+      transparent 62%
+    ),
+    var(--surface-container) !important;
   color: var(--on-surface) !important;
-  box-shadow: 0 1rem 2.5rem color-mix(in srgb, var(--primary) 20%, transparent) !important;
+  box-shadow:
+    0 1.25rem 3rem color-mix(in srgb, var(--primary) 24%, transparent),
+    0 0 0 0.25rem color-mix(in srgb, var(--primary) 7%, transparent) !important;
+
+  :global(.MuiDateCalendar-root) {
+    font-family: 'DM Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  }
+
+  :global(.MuiPickersCalendarHeader-label) {
+    font-family: 'Outfit', 'Helvetica Neue', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--on-surface);
+  }
+
+  :global(.MuiDayCalendar-weekDayLabel) {
+    color: var(--on-surface-variant);
+    font-weight: 600;
+  }
+
+  :global(.MuiPickersDay-root) {
+    color: var(--on-surface);
+    transition:
+      background-color var(--duration-fast) var(--ease-out),
+      transform var(--duration-fast) var(--ease-out);
+
+    &:hover {
+      background: color-mix(in srgb, var(--primary) 14%, transparent);
+      transform: scale(1.06);
+    }
+
+    &.Mui-selected {
+      color: var(--on-primary);
+      background: var(--primary);
+      font-weight: 700;
+      box-shadow: 0 0.3rem 0.8rem color-mix(in srgb, var(--primary) 30%, transparent);
+
+      &:hover {
+        background: var(--primary);
+      }
+    }
+  }
+
+  :global(.MuiPickersArrowSwitcher-button),
+  :global(.MuiPickersCalendarHeader-switchViewButton) {
+    color: var(--primary);
+    border-radius: 0.7rem;
+    background: color-mix(in srgb, var(--primary) 9%, transparent);
+  }
+
+  :global(.MuiClock-clock) {
+    background: color-mix(in srgb, var(--surface-container-high) 75%, var(--surface));
+  }
+
+  :global(.MuiClockNumber-root) {
+    color: var(--on-surface);
+  }
+
+  :global(.MuiClockNumber-root.Mui-selected) {
+    color: var(--on-primary);
+    background: var(--primary);
+  }
+
+  :global(.MuiMultiSectionDigitalClock-root) {
+    border-color: var(--outline-variant);
+    background: color-mix(in srgb, var(--surface-container-high) 38%, transparent);
+  }
+
+  :global(.MuiMultiSectionDigitalClock-root ul) {
+    scrollbar-color: var(--primary) transparent;
+  }
+
+  :global(.MuiMenuItem-root) {
+    color: var(--on-surface);
+    font-family: 'DM Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+
+    &:hover {
+      background: color-mix(in srgb, var(--primary) 12%, transparent);
+    }
+
+    &.Mui-selected {
+      color: var(--primary);
+      background: color-mix(in srgb, var(--primary) 16%, transparent);
+      font-weight: 700;
+    }
+  }
 }
 
 .formFooter {

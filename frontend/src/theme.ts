@@ -70,19 +70,19 @@ export function colourVariablesFor(mode: ThemeMode): Record<string, string> {
 }
 
 const sharedTypography = {
-  fontFamily: "'Manrope', 'Helvetica Neue', Helvetica, Arial, sans-serif",
+  fontFamily: "'DM Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif",
   h1: {
-    fontFamily: "'Space Grotesk', 'Helvetica Neue', sans-serif",
+    fontFamily: "'Outfit', 'Helvetica Neue', sans-serif",
     fontWeight: 700,
     letterSpacing: '-0.04em',
   },
   h2: {
-    fontFamily: "'Space Grotesk', 'Helvetica Neue', sans-serif",
+    fontFamily: "'Outfit', 'Helvetica Neue', sans-serif",
     fontWeight: 700,
     letterSpacing: '-0.025em',
   },
   h3: {
-    fontFamily: "'Space Grotesk', 'Helvetica Neue', sans-serif",
+    fontFamily: "'Outfit', 'Helvetica Neue', sans-serif",
     fontWeight: 600,
     letterSpacing: '-0.015em',
   },

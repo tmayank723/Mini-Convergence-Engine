@@ -242,7 +242,7 @@
   align-items: center;
   gap: var(--gap-sm);
   flex-wrap: wrap;
-  font-family: Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-family: 'Outfit', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   font-size: 0.6875rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -520,8 +520,17 @@
 }
 
 .themeBarFixed {
-  top: clamp(1rem, 3vw, 2rem);
-  right: clamp(1rem, 3vw, 2rem);
+  position: fixed;
+  top: max(env(safe-area-inset-top, 0px), clamp(0.75rem, 3vw, 1.5rem));
+  right: max(env(safe-area-inset-right, 0px), clamp(0.75rem, 3vw, 1.5rem));
+  z-index: 110;
+}
+
+@media (max-width: 40rem) {
+  .themeBarFixed {
+    top: calc(env(safe-area-inset-top, 0px) + 0.75rem);
+    right: calc(env(safe-area-inset-right, 0px) + 0.75rem);
+  }
 }
 
 @media (max-width: 74rem) {
