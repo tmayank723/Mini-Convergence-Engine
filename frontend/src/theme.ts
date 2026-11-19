@@ -20,42 +20,42 @@ export type ColourTokens = {
   weak: string;
 };
 
-/** Plum-and-saffron palette for the optional night mode. */
+/** Deep navy and bright blue palette for night mode. */
 export const darkColours: ColourTokens = {
-  surface: '#211d31',
-  'surface-container': '#2d2740',
-  'surface-container-high': '#3a3250',
-  'on-surface': '#fff7df',
-  'on-surface-variant': '#c9bfd7',
-  'outline-variant': '#514766',
-  primary: '#f1cf48',
-  'on-primary': '#29213a',
-  tertiary: '#f09b6b',
-  error: '#ff9b91',
-  nebula: '#514266',
-  moon: '#f5e6ae',
-  strong: '#85d0a6',
-  medium: '#efc95a',
-  weak: '#aaa0b9',
+  surface: '#111b2b',
+  'surface-container': '#1a2940',
+  'surface-container-high': '#253752',
+  'on-surface': '#f1f5fc',
+  'on-surface-variant': '#b8c6dc',
+  'outline-variant': '#3a4f70',
+  primary: '#7ba9ff',
+  'on-primary': '#10213d',
+  tertiary: '#69c5f8',
+  error: '#ff9a91',
+  nebula: '#2c4770',
+  moon: '#afcfff',
+  strong: '#79d4a3',
+  medium: '#f0bf68',
+  weak: '#aab8cd',
 };
 
-/** Sunlit lemon, dark plum and coral palette for daytime. */
+/** Clear blue and pale sky palette for daytime. */
 export const lightColours: ColourTokens = {
-  surface: '#fff3a8',
-  'surface-container': '#fffbe6',
-  'surface-container-high': '#ffef91',
-  'on-surface': '#29243b',
-  'on-surface-variant': '#625b70',
-  'outline-variant': '#e4d67e',
-  primary: '#47356d',
-  'on-primary': '#fffbe6',
-  tertiary: '#c75a3b',
-  error: '#a63d38',
-  nebula: '#f9d94c',
-  moon: '#7c6b92',
-  strong: '#347450',
-  medium: '#9a6b16',
-  weak: '#777180',
+  surface: '#edf3fc',
+  'surface-container': '#fbfdff',
+  'surface-container-high': '#e0eafa',
+  'on-surface': '#1b2b43',
+  'on-surface-variant': '#536783',
+  'outline-variant': '#c4d3e9',
+  primary: '#2858a5',
+  'on-primary': '#ffffff',
+  tertiary: '#4c86d6',
+  error: '#a84343',
+  nebula: '#b9d1f2',
+  moon: '#7795bc',
+  strong: '#26785d',
+  medium: '#916315',
+  weak: '#71819b',
 };
 
 export const THEME_STORAGE_KEY = 'mce-theme';

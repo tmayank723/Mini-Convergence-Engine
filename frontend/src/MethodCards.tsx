@@ -32,7 +32,9 @@ export function MethodCards({ methods }: { methods: MethodResult[] }) {
             style={{ '--delay': `${index * 70}ms` } as React.CSSProperties}
           >
             <div className={styles.head}>
-              <Icon fontSize="small" aria-hidden />
+              <span className={styles.icon}>
+                <Icon fontSize="small" aria-hidden />
+              </span>
               <h3>{method.label}</h3>
             </div>
 

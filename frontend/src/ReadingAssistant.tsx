@@ -19,17 +19,7 @@ export function ReadingAssistant({ reading, open, onOpenChange }: Props) {
   const [chatKey, setChatKey] = useState(0);
 
   if (!open) {
-    return (
-      <button
-        type="button"
-        className={styles.reopen}
-        onClick={() => onOpenChange(true)}
-        aria-label="Open reading companion"
-      >
-        <AutoAwesomeIcon fontSize="small" />
-        <span>Ask a question</span>
-      </button>
-    );
+    return null;
   }
 
   return (

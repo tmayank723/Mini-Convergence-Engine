@@ -78,18 +78,19 @@
 
 .fieldStack {
   position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-md);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--gap-sm);
 }
 
 .formExpanded .fieldStack {
-  gap: var(--gap-md);
+  gap: var(--gap-sm);
 }
 
 .fieldCard {
   position: relative;
-  padding: var(--gap-md) var(--gap-md) var(--gap-sm);
+  min-width: 0;
+  padding: var(--gap-sm);
   border-radius: var(--radius);
   border: 1px solid color-mix(in srgb, var(--outline-variant) 85%, transparent);
   background: color-mix(in srgb, var(--surface-container-high) 55%, transparent);
@@ -120,10 +121,6 @@
   }
 }
 
-.fieldCardSplit {
-  padding-bottom: var(--gap-md);
-}
-
 .fieldStep {
   display: inline-flex;
   align-items: center;
@@ -151,12 +148,6 @@
 
 .formExpanded .fieldInput :global(.MuiOutlinedInput-root) {
   min-height: 3rem;
-}
-
-.row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--gap-md);
 }
 
 .pickerWrap {
@@ -408,8 +399,22 @@
   }
 }
 
+@media (max-width: 50rem) {
+  .fieldStack {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .fieldCard:first-child {
+    grid-column: 1 / -1;
+  }
+}
+
 @media (max-width: 34rem) {
-  .row {
+  .fieldStack {
     grid-template-columns: 1fr;
+  }
+
+  .fieldCard:first-child {
+    grid-column: auto;
   }
 }

@@ -181,110 +181,108 @@ export function BirthForm({ busy, serverError, onSubmit, expanded = false }: Pro
         </div>
 
         <div
-          className={`${styles.fieldCard} ${styles.fieldCardSplit} ${fieldReady.dateOfBirth && fieldReady.timeOfBirth ? styles.fieldCardReady : ''}`}
+          className={`${styles.fieldCard} ${fieldReady.dateOfBirth ? styles.fieldCardReady : ''}`}
           style={{ animationDelay: '120ms' }}
         >
           <span className={styles.fieldStep} aria-hidden>
             02
           </span>
-          <div className={`${styles.row} ${styles.pickers}`}>
-            {/*
-              Mobile variants on both, on purpose. Their field is not typeable and
-              opens a dialog, which is exactly what is wanted for a birth date:
-              05/06/2002 means two different dates depending on where the reader is
-              from, and for any day of 12 or less the two readings are
-              indistinguishable, so a mistyped date would come back as a complete,
-              plausible, wrong reading.
-            */}
-            <div className={styles.pickerWrap}>
-              <MobileDatePicker
-                label="Date of birth"
-                value={dateOfBirth}
-                format="DD/MM/YYYY"
-                openTo="year"
-                views={['year', 'month', 'day']}
-                minDate={minDate}
-                maxDate={maxDate}
-                referenceDate={referenceDate}
-                onChange={setDateOfBirth}
-                open={dateOpen}
-                onOpen={() => setDateOpen(true)}
-                onClose={() => {
-                  setDateOpen(false);
-                  markTouched('dateOfBirth');
-                }}
-                slotProps={{
-                  // readOnly stops the sectioned field being typed into, leaving the
-                  // calendar as the only way to set a date.
-                  field: { readOnly: true },
-                  textField: {
-                    required: true,
-                    onClick: () => setDateOpen(true),
-                    error: Boolean(errorFor('dateOfBirth')),
-                    helperText: errorFor('dateOfBirth') ?? 'Choose a date from the calendar',
-                    className: styles.pickerField,
-                  },
-                }}
-              />
-            </div>
+          {/*
+            The picker is not typeable and opens a dialog, which is exactly what
+            is wanted for a birth date: 05/06/2002 can mean two different dates.
+          */}
+          <div className={`${styles.pickerWrap} ${styles.pickers}`}>
+            <MobileDatePicker
+              label="Date of birth"
+              value={dateOfBirth}
+              format="DD/MM/YYYY"
+              openTo="year"
+              views={['year', 'month', 'day']}
+              minDate={minDate}
+              maxDate={maxDate}
+              referenceDate={referenceDate}
+              onChange={setDateOfBirth}
+              open={dateOpen}
+              onOpen={() => setDateOpen(true)}
+              onClose={() => {
+                setDateOpen(false);
+                markTouched('dateOfBirth');
+              }}
+              slotProps={{
+                field: { readOnly: true },
+                textField: {
+                  required: true,
+                  onClick: () => setDateOpen(true),
+                  error: Boolean(errorFor('dateOfBirth')),
+                  helperText: errorFor('dateOfBirth') ?? 'Choose a date from the calendar',
+                  className: styles.pickerField,
+                },
+              }}
+            />
+          </div>
+        </div>
 
-            <div className={styles.pickerWrap}>
-              <MobileTimePicker
-                label="Time of birth"
-                value={timeOfBirth}
-                format="HH:mm"
-                ampm={false}
-                // Digital columns rather than the default clock face. On a 24-hour
-                // clock the hours crowd into two rings and the minutes have to be
-                // aimed at, and the exact minute matters here: it decides the vara
-                // either side of 06:00, and the sign either side of a cusp.
-                viewRenderers={DIGITAL_COLUMNS}
-                onChange={setTimeOfBirth}
-                open={timeOpen}
-                onOpen={() => setTimeOpen(true)}
-                onClose={() => {
-                  setTimeOpen(false);
-                  markTouched('timeOfBirth');
-                }}
-                slotProps={{
-                  field: { readOnly: true },
-                  textField: {
-                    required: true,
-                    onClick: () => setTimeOpen(true),
-                    error: Boolean(errorFor('timeOfBirth')),
-                    helperText: errorFor('timeOfBirth') ?? 'Enter local time; interpreted as IST',
-                    className: styles.pickerField,
-                  },
-                  // Styles hang off the paper, because the dialog renders in a portal
-                  // outside the form. The sx on layout wins over MUI's default grid,
-                  // which reserves a shortcut column this picker never uses.
-                  layout: {
-                    sx: {
+        <div
+          className={`${styles.fieldCard} ${fieldReady.timeOfBirth ? styles.fieldCardReady : ''}`}
+          style={{ animationDelay: '200ms' }}
+        >
+          <span className={styles.fieldStep} aria-hidden>
+            03
+          </span>
+          <div className={`${styles.pickerWrap} ${styles.pickers}`}>
+            <MobileTimePicker
+              label="Time of birth"
+              value={timeOfBirth}
+              format="HH:mm"
+              ampm={false}
+              // Digital columns keep the exact minute easy to choose. It can
+              // affect the vara at 06:00 or a sun sign near a cusp.
+              viewRenderers={DIGITAL_COLUMNS}
+              onChange={setTimeOfBirth}
+              open={timeOpen}
+              onOpen={() => setTimeOpen(true)}
+              onClose={() => {
+                setTimeOpen(false);
+                markTouched('timeOfBirth');
+              }}
+              slotProps={{
+                field: { readOnly: true },
+                textField: {
+                  required: true,
+                  onClick: () => setTimeOpen(true),
+                  error: Boolean(errorFor('timeOfBirth')),
+                  helperText: errorFor('timeOfBirth') ?? 'Enter local time; interpreted as IST',
+                  className: styles.pickerField,
+                },
+                // Styles hang off the paper, because the dialog renders in a portal
+                // outside the form. The sx on layout wins over MUI's default grid,
+                // which reserves a shortcut column this picker never uses.
+                layout: {
+                  sx: {
+                    width: '100%',
+                    gridTemplateColumns: '1fr',
+                    '& .MuiPickersLayout-toolbar': { gridColumn: '1', width: '100%' },
+                    '& .MuiPickersLayout-contentWrapper': {
+                      gridColumn: '1',
                       width: '100%',
-                      gridTemplateColumns: '1fr',
-                      '& .MuiPickersLayout-toolbar': { gridColumn: '1', width: '100%' },
-                      '& .MuiPickersLayout-contentWrapper': {
-                        gridColumn: '1',
-                        width: '100%',
-                        alignItems: 'stretch',
-                      },
-                      '& .MuiPickersLayout-actionBar': { gridColumn: '1', width: '100%' },
-                      '& .MuiMultiSectionDigitalClock-root': {
-                        width: '100%',
-                        justifyContent: 'stretch',
-                        borderBottom: 0,
-                      },
-                      '& .MuiMultiSectionDigitalClockSection-root': {
-                        flex: '1 1 50%',
-                        width: 'auto',
-                        maxWidth: 'none',
-                      },
+                      alignItems: 'stretch',
+                    },
+                    '& .MuiPickersLayout-actionBar': { gridColumn: '1', width: '100%' },
+                    '& .MuiMultiSectionDigitalClock-root': {
+                      width: '100%',
+                      justifyContent: 'stretch',
+                      borderBottom: 0,
+                    },
+                    '& .MuiMultiSectionDigitalClockSection-root': {
+                      flex: '1 1 50%',
+                      width: 'auto',
+                      maxWidth: 'none',
                     },
                   },
-                  mobilePaper: { className: styles.timeDialogPaper },
-                }}
-              />
-            </div>
+                },
+                mobilePaper: { className: styles.timeDialogPaper },
+              }}
+            />
           </div>
         </div>
       </div>

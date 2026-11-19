@@ -58,8 +58,8 @@ html[data-theme='light'] body::before {
   pointer-events: none;
   background:
     radial-gradient(ellipse 34rem 28rem at 94% 4%, color-mix(in srgb, var(--nebula) 52%, transparent), transparent 72%),
-    radial-gradient(ellipse 24rem 20rem at 4% 68%, color-mix(in srgb, var(--tertiary) 9%, transparent), transparent 76%),
-    linear-gradient(145deg, #fff8cc 0%, var(--surface) 54%, #ffe980 100%);
+    radial-gradient(ellipse 24rem 20rem at 4% 68%, color-mix(in srgb, var(--tertiary) 10%, transparent), transparent 76%),
+    linear-gradient(145deg, #f7faff 0%, var(--surface) 54%, #dce8f8 100%);
 }
 
 html[data-theme='light'] body::after {
@@ -81,7 +81,7 @@ html[data-theme='dark'] body::before {
   pointer-events: none;
   background:
     radial-gradient(ellipse 38rem 30rem at 95% 0%, color-mix(in srgb, var(--primary) 14%, transparent), transparent 72%),
-    linear-gradient(145deg, #30283e 0%, var(--surface) 64%, #191626 100%);
+    linear-gradient(145deg, #1c2d49 0%, var(--surface) 64%, #101827 100%);
 }
 
 html[data-theme='dark'] body::after {

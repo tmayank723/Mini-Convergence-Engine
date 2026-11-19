@@ -330,7 +330,7 @@ OpenRouter, model `anthropic/claude-sonnet-5.5` only, using the issued key. Two 
 Usage is billed on that key and is part of the evaluation. Calculations, scores and N are **never** produced by a model. If the key is missing or the call fails, a template summary / unavailable chat reply is used so the page cannot go blank.
 
 **In development**  
-The original implementation notes above were written for the assignment workflow. The Node.js migration and yellow-and-plum interface refresh were completed with AI assistance in VS Code. The interface wording has been rewritten for this app; the underlying traditions and source attributions remain named rather than presented as original inventions.
+The original implementation notes above were written for the assignment workflow. The Node.js migration and blue interface refresh were completed with AI assistance in VS Code. The interface wording has been rewritten for this app; the underlying traditions and source attributions remain named rather than presented as original inventions.
 
 **Approximate time**  
 The calculation engine, `node:test` suite, React UI, grounded chat, light/dark theme, Render/Vercel hosting, and documentation have been iterated on over the course of the project.
