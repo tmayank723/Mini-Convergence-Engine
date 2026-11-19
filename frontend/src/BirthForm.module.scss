@@ -1,0 +1,415 @@
+.form {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.formExpanded {
+  gap: var(--gap-md);
+}
+
+.formAura {
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 40%;
+  background: radial-gradient(
+    ellipse 70% 80% at 50% 0%,
+    color-mix(in srgb, var(--tertiary) 16%, transparent),
+    transparent 70%
+  );
+  opacity: 0.7;
+}
+
+.formHeader {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+  animation: field-in var(--duration-slow) var(--ease-out) both;
+}
+
+.formHeaderRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--gap-md);
+}
+
+.formLabel {
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.formCount {
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--on-surface-variant);
+}
+
+.progressTrack {
+  height: 0.25rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--outline-variant) 55%, transparent);
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--primary) 70%, var(--tertiary)),
+    var(--primary)
+  );
+  transition: width var(--duration-slow) var(--ease-out);
+  box-shadow: 0 0 1rem color-mix(in srgb, var(--primary) 45%, transparent);
+}
+
+.fieldStack {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+}
+
+.formExpanded .fieldStack {
+  gap: var(--gap-md);
+}
+
+.fieldCard {
+  position: relative;
+  padding: var(--gap-md) var(--gap-md) var(--gap-sm);
+  border-radius: var(--radius);
+  border: 1px solid color-mix(in srgb, var(--outline-variant) 85%, transparent);
+  background: color-mix(in srgb, var(--surface-container-high) 55%, transparent);
+  transition:
+    border-color var(--duration) var(--ease-out),
+    box-shadow var(--duration) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
+  animation: field-in var(--duration-slow) var(--ease-out) both;
+  border-radius: 1rem;
+  background: color-mix(in srgb, var(--surface-container) 84%, var(--surface));
+
+  &:focus-within {
+    border-color: color-mix(in srgb, var(--primary) 55%, var(--outline-variant));
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--primary) 25%, transparent),
+      0 0.75rem 2rem color-mix(in srgb, var(--primary) 12%, transparent);
+    transform: translateY(-2px);
+  }
+}
+
+.fieldCardReady {
+  border-color: color-mix(in srgb, var(--strong) 35%, var(--outline-variant));
+
+  .fieldStep {
+    color: var(--strong);
+    border-color: color-mix(in srgb, var(--strong) 40%, transparent);
+    background: color-mix(in srgb, var(--strong) 12%, transparent);
+  }
+}
+
+.fieldCardSplit {
+  padding-bottom: var(--gap-md);
+}
+
+.fieldStep {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2rem;
+  margin-bottom: var(--gap-sm);
+  padding: 0.125rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.06em;
+  color: var(--on-surface-variant);
+  border: 1px solid color-mix(in srgb, var(--outline-variant) 70%, transparent);
+  background: color-mix(in srgb, var(--surface) 40%, transparent);
+  transition:
+    color var(--duration) var(--ease-out),
+    border-color var(--duration) var(--ease-out),
+    background var(--duration) var(--ease-out);
+}
+
+.fieldInput :global(.MuiOutlinedInput-root) {
+  font-size: 1.0625rem;
+}
+
+.formExpanded .fieldInput :global(.MuiOutlinedInput-root) {
+  min-height: 3rem;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap-md);
+}
+
+.pickerWrap {
+  position: relative;
+  min-width: 0;
+}
+
+.formFooter {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+  margin-top: var(--gap-xs);
+  padding-top: var(--gap-md);
+  border-top: 1px solid color-mix(in srgb, var(--outline-variant) 55%, transparent);
+}
+
+.systemStrip {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+}
+
+.systemStripLabel {
+  margin: 0;
+  font-size: 0.625rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--on-surface-variant);
+}
+
+.systemList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.systemChip {
+  padding: 0.375rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  border: 1px solid color-mix(in srgb, var(--outline-variant) 80%, transparent);
+  background: color-mix(in srgb, var(--surface) 50%, transparent);
+  color: var(--on-surface-variant);
+  animation: chip-in var(--duration-slow) var(--ease-out) both;
+  transition:
+    border-color var(--duration) var(--ease-out),
+    color var(--duration) var(--ease-out),
+    box-shadow var(--duration) var(--ease-out);
+}
+
+.systemChipLive {
+  border-color: color-mix(in srgb, var(--tertiary) 42%, transparent);
+  color: var(--on-surface);
+  background: color-mix(in srgb, var(--nebula) 52%, var(--surface-container));
+  box-shadow: 0 0.2rem 0.8rem color-mix(in srgb, var(--tertiary) 14%, transparent);
+  animation:
+    chip-in var(--duration-slow) var(--ease-out) both,
+    chip-pulse 2.4s var(--ease-in-out) infinite;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-md);
+  flex-wrap: wrap;
+}
+
+.submit {
+  min-width: 12rem;
+  width: auto;
+  border-radius: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  transition:
+    transform var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
+
+  &:not(:disabled):hover {
+    transform: translateY(-1px);
+    box-shadow: 0 0.5rem 1.25rem color-mix(in srgb, var(--primary) 35%, transparent);
+  }
+
+  &:not(:disabled):active {
+    transform: translateY(0);
+  }
+}
+
+.submitReady {
+  box-shadow: 0 0.4rem 1.2rem color-mix(in srgb, var(--primary) 24%, transparent);
+}
+
+.blocked {
+  font-size: 0.8125rem;
+  color: var(--on-surface-variant);
+}
+
+.serverError {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--gap-sm);
+  margin: 0;
+  padding: var(--gap-sm) var(--gap-md);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--error) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--error) 40%, transparent);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  animation: error-in var(--duration) var(--ease-out) both;
+
+  svg {
+    flex: none;
+    color: var(--error);
+    margin-top: 0.125rem;
+  }
+}
+
+.pickers {
+  // The picker fields are read-only but still open their dialog, so they have
+  // to look clickable rather than disabled.
+  :global(.MuiPickersSectionList-root) {
+    cursor: pointer;
+  }
+}
+
+// Time picker dialog (rendered in a MUI portal). All rules are descendants of
+// the paper so they still apply outside the form tree.
+.timeDialogPaper {
+  width: min(100vw - 2rem, 22.5rem);
+  max-width: none;
+  margin-inline: auto;
+
+  :global(.MuiPickersLayout-root) {
+    // Drop the shortcut column the layout reserves but never fills.
+    width: 100%;
+    grid-template-columns: 1fr;
+  }
+
+  :global(.MuiPickersLayout-toolbar),
+  :global(.MuiPickersLayout-contentWrapper),
+  :global(.MuiPickersLayout-actionBar) {
+    grid-column: 1;
+    width: 100%;
+  }
+
+  :global(.MuiPickersLayout-contentWrapper) {
+    align-items: stretch;
+    padding-inline: var(--gap-md);
+  }
+
+  :global(.MuiPickersToolbar-root) {
+    justify-content: center;
+    padding-inline: var(--gap-md);
+  }
+
+  :global(.MuiMultiSectionDigitalClock-root) {
+    width: 100%;
+    max-width: 100%;
+    justify-content: stretch;
+    margin-inline: 0;
+    border-bottom: 0;
+  }
+
+  :global(.MuiMultiSectionDigitalClockSection-root) {
+    flex: 1 1 50%;
+    width: auto;
+    max-width: none;
+    min-width: 0;
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--on-surface) 32%, transparent) transparent;
+
+    &::-webkit-scrollbar {
+      width: 0.375rem;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: transparent;
+      margin-block: 0.625rem;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--on-surface) 26%, transparent);
+      border: 2px solid transparent;
+      background-clip: padding-box;
+    }
+
+    &:hover::-webkit-scrollbar-thumb {
+      background: color-mix(in srgb, var(--primary) 50%, transparent);
+      background-clip: padding-box;
+    }
+  }
+
+  :global(.MuiMultiSectionDigitalClockSection-item) {
+    width: auto;
+    margin-inline: var(--gap-xs);
+    font-variant-numeric: tabular-nums;
+    justify-content: center;
+  }
+
+  :global(.MuiPickersLayout-actionBar) {
+    justify-content: flex-end;
+    padding: var(--gap-xs) var(--gap-md) var(--gap-sm);
+  }
+}
+
+@keyframes field-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
+}
+
+@keyframes chip-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.35rem) scale(0.96);
+  }
+}
+
+@keyframes chip-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 color-mix(in srgb, var(--primary) 0%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 1.25rem color-mix(in srgb, var(--primary) 22%, transparent);
+  }
+}
+
+@keyframes submit-glow {
+  0%,
+  100% {
+    box-shadow: 0 0.25rem 1rem color-mix(in srgb, var(--primary) 25%, transparent);
+  }
+  50% {
+    box-shadow: 0 0.5rem 1.75rem color-mix(in srgb, var(--primary) 45%, transparent);
+  }
+}
+
+@keyframes error-in {
+  from {
+    opacity: 0;
+    transform: translateY(-0.375rem);
+  }
+}
+
+@media (max-width: 34rem) {
+  .row {
+    grid-template-columns: 1fr;
+  }
+}

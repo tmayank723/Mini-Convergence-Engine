@@ -1,0 +1,18 @@
+# Build output
+dist/
+dist-ssr/
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Editors
+.idea/
+.vscode/*
+!.vscode/extensions.json
+.history/*
+
+# System files
+.DS_Store
+Thumbs.db
